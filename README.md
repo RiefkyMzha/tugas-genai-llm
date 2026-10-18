@@ -6,7 +6,7 @@
 
 **Use Case:** Generator materi pembelajaran otomatis berbasis Generative AI
 
-**Deskripsi Singkat:** Aplikasi FastAPI yang menerima input topik pembelajaran, tingkat kesulitan, dan durasi waktu, lalu menghasilkan materi pembelajaran terstruktur dalam bentuk JSON menggunakan LLM Groq. Output mencsayap tujuan pembelajaran, ringkasan materi, poin penting, kuis, dan saran sumber belajar.
+**Deskripsi Singkat:** Aplikasi FastAPI yang menerima input topik pembelajaran, tingkat kesulitan, dan durasi waktu, lalu menghasilkan materi pembelajaran terstruktur dalam bentuk JSON menggunakan LLM Groq. Output mencakup tujuan pembelajaran, ringkasan materi, poin penting, kuis, dan saran sumber belajar.
 
 ------------------------------------------------------
 
@@ -22,6 +22,8 @@
 ------------------------------------------------------
 
 ## Application Flow
+
+```text
 User Input
 ↓
 FastAPI (POST /generate)
@@ -29,6 +31,7 @@ FastAPI (POST /generate)
 LLM API (Groq)
 ↓
 Structured Output (JSON)
+```
 
 Penjelasan: User mengirim data input (topik, tingkat kesulitan, durasi) melalui endpoint `POST /generate`. FastAPI memvalidasi request menggunakan Pydantic model, kemudian mengirim input bersama system prompt ke Groq LLM. LLM menghasilkan materi pembelajaran dalam format JSON yang sudah ditentukan, lalu FastAPI mengembalikannya sebagai response terstruktur ke user.
 
@@ -37,7 +40,10 @@ Penjelasan: User mengirim data input (topik, tingkat kesulitan, durasi) melalui 
 ## API Endpoint
 
 Endpoint kalian:
+
+```text
 POST /generate
+```
 
 Endpoint tambahan:
 - `GET /` — informasi API
@@ -47,16 +53,19 @@ Endpoint tambahan:
 
 ## Example Request
 
+```
 {
   "topik": "Pengenalan Kecerdasan Buatan",
   "tingkat_kesulitan": "pemula",
   "durasi_menit": 60
 }
+```
 
 ------------------------------------------------------
 
 ## Example Response
 
+```
 {
   "topik": "Pengenalan Kecerdasan Buatan",
   "tingkat_kesulitan": "pemula",
@@ -117,13 +126,15 @@ Endpoint tambahan:
   ],
   "estimasi_durasi_menit": 60
 }
+```
 
 ------------------------------------------------------
 
 # Structured Output
 
 Structured output yang digunakan pada aplikasi:
- 
+
+```
 {
   "topik": "string",
   "tingkat_kesulitan": "string",
@@ -144,6 +155,7 @@ Structured output yang digunakan pada aplikasi:
   "saran_sumber_belajar": ["string"],
   "estimasi_durasi_menit": integer
 }
+```
 
 ### Kenapa kalian memilih field-field tersebut?
 
@@ -155,6 +167,7 @@ Field-field tersebut dipilih sesuai dengan fungsi aplikasi sebagai generator mat
 - `kuis` sebagai evaluasi pemahaman dengan format pilihan ganda beserta penjelasan jawaban.
 - `saran_sumber_belajar` untuk referensi pembelajaran lebih lanjut.
 - `estimasi_durasi_menit` untuk perkiraan waktu yang dibutuhkan dalam mempelajari materi tersebut.
+
 ------------------------------------------------------
 
 # Prompt Experiment
@@ -163,23 +176,25 @@ Gunakan input yang sama untuk Prompt A, Prompt B, dan Prompt C.
 
 ## Input yang Digunakan
 
+```
 {
   "topik": "Pengenalan Kecerdasan Buatan",
   "tingkat_kesulitan": "pemula",
   "durasi_menit": 60
 }
+```
 
 ------------------------------------------------------
 
 ## Prompt A
 
- 
+```text
 Buat materi pembelajaran tentang {topik}.
- 
+```
 
 ### Actual Output A
 
- 
+```
 {
   "topic": "Pengenalan Kecerdasan Buatan",
   "level": "Pemula",
@@ -344,22 +359,23 @@ Buat materi pembelajaran tentang {topik}.
     "Artikel: ‘Ethics of AI’ – Harvard Business Review"
   ]
 }
- 
+```
 
 ------------------------------------------------------
 
 ## Prompt B
 
- 
+```text
 Anda adalah pembuat materi pembelajaran ahli.
 
 Tugas Anda adalah membuat materi pembelajaran tentang {topik}.
 
 Konteks: Materi pembelajaran ini akan digunakan oleh peserta didik atau pemula yang ingin memahami sebuah topik secara sistematis. Output akan digunakan sebagai referensi pembelajaran mandiri atau bahan ajar.
-
+```
 
 ### Actual Output B
 
+```
 {
   "title": "Pengenalan Kecerdasan Buatan (AI) untuk Pemula",
   "level": "Pemula",
@@ -503,12 +519,13 @@ Konteks: Materi pembelajaran ini akan digunakan oleh peserta didik atau pemula y
     }
   ]
 }
-
+```
 
 ------------------------------------------------------
 
 ## Prompt C
 
+````text
 Anda adalah pembuat materi pembelajaran ahli yang berpengalaman dalam merancang kurikulum dan modul ajar untuk berbagai tingkat pemula.
 
 Tugas Anda adalah membuat materi pembelajaran yang lengkap dan terstruktur berdasarkan topik, tingkat kesulitan, dan durasi waktu yang diberikan oleh pengguna.
@@ -517,7 +534,7 @@ Konteks: Materi pembelajaran ini akan digunakan oleh peserta didik atau pemula y
 
 Batasan:
 - Output HARUS berupa JSON valid dan tidak boleh menyertakan teks apa pun di luar JSON.
-- Jangan sertakan markdown code block ( json ...  ).
+- Jangan sertakan markdown code block (```json ... ```).
 - Semua field wajib diisi, tidak boleh kosong atau null.
 - Field kuis minimal berisi 3 soal.
 - Semua konten harus dalam bahasa Indonesia.
@@ -544,10 +561,11 @@ Format Output (JSON):
   "saran_sumber_belajar": ["string", "string"],
   "estimasi_durasi_menit": integer
 }
-
+````
 
 ### Actual Output C
 
+```
 {
   "topik": "Pengenalan Kecerdasan Buatan",
   "tingkat_kesulitan": "pemula",
@@ -599,8 +617,9 @@ Format Output (JSON):
   ],
   "estimasi_durasi_menit": 60
 }
-------------------------------------------------------
+```
 
+------------------------------------------------------
 
 # Prompt Evaluation
 
@@ -624,14 +643,17 @@ Prompt C tidak hanya memberikan tugas, peran, dan konteks, tetapi juga menetapka
 
 ### Input yang menghasilkan output kurang baik
 
+```
 {
   "topik": "Apa arti kehidupan di dunia",
   "tingkat_kesulitan": "profesor",
   "durasi_menit": 5
 }
+```
 
 ### Actual Output
 
+```
 {
   "topik": "Apa arti kehidupan di dunia",
   "tingkat_kesulitan": "profesor",
@@ -683,6 +705,7 @@ Prompt C tidak hanya memberikan tugas, peran, dan konteks, tetapi juga menetapka
   ],
   "estimasi_durasi_menit": 5
 }
+```
 
 ### Menurut kalian apa masalah dari output tersebut?
 
@@ -692,16 +715,21 @@ Isinya terlalu berat dan terlalu panjang untuk durasi 5 menit. Di situ ada 5 poi
 
 batasan lama:
 
+```text
 - Estimasi durasi harus sesuai dengan input durasi_menit yang diberikan.
+```
 
 saya ganti jadi aturan yang mengikat jumlah dan panjang isi ke durasi, sekaligus mengatur variasi jawaban kuis:
 
+```text
 - Sesuaikan jumlah dan panjang isi dengan durasi_menit: durasi kurang dari 15 menit = ringkasan maksimal 3 kalimat, 3 poin penting, dan 3 soal kuis; durasi 15 sampai 60 menit = 5 poin penting dan 4 soal kuis; durasi lebih dari 60 menit = boleh lebih lengkap.
 - Jawaban kuis harus bervariasi (A, B, C, dan D), tidak boleh semuanya sama.
 - estimasi_durasi_menit WAJIB sama persis dengan durasi_menit pada input.
+```
 
 Selain prompt, saya juga tambah validasi di kode setelah JSON berhasil di-parse, supaya kalau LLM tetap tidak patuh, aplikasi tidak diam-diam mengembalikan output yang salah:
 
+```python
 if result.get("estimasi_durasi_menit") != request.durasi_menit:
     raise HTTPException(
         status_code=502,
@@ -713,11 +741,13 @@ if not isinstance(result.get("kuis"), list) or len(result["kuis"]) < 3:
         status_code=502,
         detail="Field kuis harus berisi minimal 3 soal."
     )
+```
 
 Jadi sekarang ada dua lapis pengaman: prompt mengatur isi supaya proporsional, dan kode memastikan durasi serta jumlah soal tetap benar.
 
 ### Output setelah diperbaiki
 
+```
 {
   "topik": "Apa arti kehidupan di dunia",
   "tingkat_kesulitan": "profesor",
@@ -767,6 +797,7 @@ Jadi sekarang ada dua lapis pengaman: prompt mengatur isi supaya proporsional, d
   ],
   "estimasi_durasi_menit": 5
 }
+```
 
 ------------------------------------------------------
 
@@ -776,7 +807,7 @@ Jawab menggunakan pendapat dan pengalaman kalian sendiri selama mengerjakan proj
 
 ### 1. Menurut kalian, bagian apa yang paling sulit dari project ini?
 
-- Json yang kotor dari llm 
+- Json yang kotor dari llm
 - Sebelumny pakai .format() yang bikin llm gagal kasih output karena format jsonnya
 
 ### 2. Bagian kode mana yang paling banyak dibantu oleh AI?
@@ -786,7 +817,7 @@ Jawab menggunakan pendapat dan pengalaman kalian sendiri selama mengerjakan proj
 
 ### 3. Setelah melihat kode tersebut, jelaskan menggunakan bahasa kalian sendiri bagaimana bagian tersebut bekerja.
 
-- bersihkan_json_dari_llm(): Fungsi ini membersihkan output LLM biar jadi JSON murni. Sebelumnya LLM sering balik dengan markdown fence json ...  atau teks penjelasan di luar JSON. Fungsi ini sebelumnya buang fence-nya pakai regex, terus cari kurung kurawal buka { pertama. Dari situ dia hitung kedalaman: setiap ketemu { tambah 1, ketemu } kurang 1. Kalau hitungan balik ke 0, berarti JSON-nya sudah lengkap (termasuk nested object di dalam kuis). Dia potong substring itu dan return. Kalau gagal, fallback ambil sampai } terakhir.
+- bersihkan_json_dari_llm(): Fungsi ini membersihkan output LLM biar jadi JSON murni. Sebelumnya LLM sering balik dengan markdown fence json ... atau teks penjelasan di luar JSON. Fungsi ini sebelumnya buang fence-nya pakai regex, terus cari kurung kurawal buka { pertama. Dari situ dia hitung kedalaman: setiap ketemu { tambah 1, ketemu } kurang 1. Kalau hitungan balik ke 0, berarti JSON-nya sudah lengkap (termasuk nested object di dalam kuis). Dia potong substring itu dan return. Kalau gagal, fallback ambil sampai } terakhir.
 
 - error handling (try/except → HTTPException): endpoint /generate, kode dibungkus try/except. Kalau json.loads() gagal parsing (LLM balik teks bukan JSON), tangkap JSONDecodeError dan raise HTTPException 502 dengan pesan jelas. Kalau error lain (timeout Groq, API error, validasi output gagal), tangkap Exception umum dan raise HTTPException 500. Jadi user selalu dapat response JSON dengan status code dan detail error yang bermakna, bukan crash server.
 
@@ -816,5 +847,4 @@ fungsi bersihkan_json_dari_llm() pakai nested-brace counting, struktur Pydantic 
 
 ### Bagian apa yang kalian tentukan, perbaiki, atau ubah sendiri setelah melihat hasil dari AI?
 
-Saya yang tentuin use case (Learning Material Generator), schema JSON 8 field, buat promptnya, constraint durasi di prompt, validasi output di kode (guardrail estimasi_durasi_menit & kuis >= 3), dan Failure Case input/output. Saya juga yang tes API, bandingin Prompt A/B/C, dan nulis Prompt Evaluation serta README.#   t u g a s - g e n a i - l l m  
- 
+Saya yang tentuin use case (Learning Material Generator), schema JSON 8 field, buat promptnya, constraint durasi di prompt, validasi output di kode (guardrail estimasi_durasi_menit & kuis >= 3), dan Failure Case input/output. Saya juga yang tes API, bandingin Prompt A/B/C, dan nulis Prompt Evaluation serta README.
